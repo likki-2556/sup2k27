@@ -1,0 +1,103 @@
+Created At: 2026-11-07T10:57:48+05:30
+Completed At: 2026-11-07T10:57:49+05:30
+Showing lines 101-200 of 330
+101:   }, []);
+102: 
+103:   const [showImages, setShowImages] = useState(true);
+104:   const [showEventPage, setShowEventPage] = useState(false);
+105:   const [foldFan, setFoldFan] = useState(false);
+106:   // const [origins, setOrigins] = useState<{ x: number; y: number }[]>([]);
+107:   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+108: 
+109:   // const [durations, setDurations] = useState<number[]>([]);
+110:   // const [delays, setDelays] = useState<number[]>([]);
+111: 
+112:   const EventRef = useRef<HTMLDivElement>(null);
+113:   const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
+114:   useEffect(() => {
+115:     if (!canHover) return; // skip for mobile/touch
+116: 
+117:     const cleanups: (() => void)[] = [];
+118: 
+119:     imageRefs.current.forEach((img) => {
+120:       if (!img) return;
+121: 
+122:       const hoverTween = gsap.to(img, {
+123:         scale: 1.05,
+124:         filter: "saturate(1.5)",
+125:         duration: 0.2,
+126:         ease: "power1.out",
+127:         paused: true,
+128:         // overwrite: true,
+129:         startAt: { filter: "saturate(1) " }, // initial value
+130:       });
+131: 
+132:       const onEnter = () => hoverTween.play();
+133:       const onLeave = () => hoverTween.reverse();
+134: 
+135:       img.addEventListener("mouseenter", onEnter);
+136:       img.addEventListener("mouseleave", onLeave);
+137:       img.addEventListener("click", onLeave);
+138:       // push cleanup for this img
+139:       cleanups.push(() => {
+140:         img.removeEventListener("mouseenter", onEnter);
+141:         img.removeEventListener("mouseleave", onLeave);
+142:       });
+143:     });
+144: 
+145:     // Cleanup all listeners
+146:     return () => {
+147:       cleanups.forEach((fn) => fn());
+148:     };
+149:   }, [canHover]);
+150: 
+151:   useEffect(() => {
+152:     // const radius = isMobile ? window.innerHeight / 2 : window.innerWidth / 2;
+153: 
+154:     // const delayAngleFactor = isMobile ? 0.0016 : 0.01505;
+155:     // const delayAngleFactor = 1000;
+156:     // const speed = isMobile ? 800 : 1000;
+157:     // const time= 2;
+158:     // const computedDurations = rotationAngles.map((angle) => {
+159:     //   // const angleRad = Math.abs((angle * Math.PI) / 180);
+160:     //   // const arcLength = angleRad * radius;
+161:     //   return  time;
+162:     // });
+163: 
+164:     // setDurations([2,2,2,2,2]);
+165: 
+166:     // const angleDiffs = rotationAngles.map((angle) =>
+167:     //   Math.abs(angle - rotationAngles[0])
+168:     // );
+169:     // const maxDiff = Math.max(...angleDiffs);
+170:     // const computedDelays = angleDiffs.map(
+171:     //   (diff) => 0
+172:     //   // (diff) => diff + 10000
+173:     // );
+174: 
+175:     // setDelays([0,0,0,0,0]);
+176:   }, []);
+177: 
+178:   const handleImageClick = (alt: string) => {
+179:     setSelectedCategory(alt);
+180:     setFoldFan(true);
+181:     imageRefs.current.forEach((img) => {
+182:   if (!img) return;
+183:   gsap.killTweensOf(img);
+184:   img.style.filter = "saturate(1) "; // reset if needed
+185:   img.style.scale = "1";  // optional: reset transforms
+186: });
+187:     setTimeout(() => {
+188:       setShowImages(false);
+189:     }, 2000);
+190:      setShowEventPage(true);
+191: 
+192:     const mm = gsap.matchMedia();
+193: 
+194:     // MOBILE
+195:     mm.add("(max-width: 1200px) and (max-aspect-ratio: 1.45)", () => {
+196:       const mobileOrder = [1, 0, 4, 3, 2];
+197: 
+198:       requestAnimationFrame(() => {
+199:         mobileOrder.forEach((originalIndex, orderIndex) => {
+200:           const imgEl = imageRefs.current[originalIndex];
